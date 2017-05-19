@@ -1,6 +1,5 @@
 package com.mofang.check;
 
-import com.alibaba.fastjson.JSON;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import org.springframework.cloud.netflix.zuul.filters.Route;
@@ -25,16 +24,16 @@ public class BusinessVerifyFilter extends ZuulFilter {
 
     private CheckManager checkManager;
     private RouteLocator routeLocator;
-    private CheckExceptionToResponseObject checkExceptionToResponseObject;
+    private CheckExceptionToResponseBodyString checkExceptionToResponseBodyString;
     private UrlPathHelper urlPathHelper = new UrlPathHelper();
 
     public BusinessVerifyFilter(CheckManager checkManager,
                                 RouteLocator routeLocator,
                                 ZuulProperties properties,
-                                CheckExceptionToResponseObject checkExceptionToResponseObject) {
+                                CheckExceptionToResponseBodyString checkExceptionToResponseBodyString) {
         this.checkManager = checkManager;
         this.routeLocator = routeLocator;
-        this.checkExceptionToResponseObject = checkExceptionToResponseObject;
+        this.checkExceptionToResponseBodyString = checkExceptionToResponseBodyString;
         this.urlPathHelper.setRemoveSemicolonContent(properties.isRemoveSemicolonContent());
     }
 
@@ -56,10 +55,7 @@ public class BusinessVerifyFilter extends ZuulFilter {
             } catch (CheckException e) {
                 ctx.setSendZuulResponse(false);
                 ctx.setResponseStatusCode(e.getHttpCode());
-                ctx.setResponseBody(
-                        JSON.toJSONString(checkExceptionToResponseObject.getResponseObject(e))
-                );
-                ctx.addZuulResponseHeader("Content-Type", "application/json;charset=UTF-8");
+                ctx.setResponseBody(checkExceptionToResponseBodyString.getResponseObject(e));
                 break;
             }
         }

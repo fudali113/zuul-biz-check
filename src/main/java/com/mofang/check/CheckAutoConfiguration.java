@@ -1,5 +1,6 @@
 package com.mofang.check;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.context.annotation.Bean;
@@ -8,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import java.util.List;
 
 /**
- * CheckAotuConfiguration
+ * CheckAutoConfiguration
  *
  * @author doob  fudali113@gmail.com
  * @date 2017/5/20
@@ -20,13 +21,13 @@ public class CheckAutoConfiguration {
     public BusinessVerifyFilter getProfessionalVerifyFilter(CheckManager checkManager,
                                                             RouteLocator routeLocator,
                                                             ZuulProperties properties,
-                                                            CheckExceptionToResponseObject
-                                                                        checkExceptionToResponseObject) {
+                                                            CheckExceptionToResponseBodyString
+                                                                    checkExceptionToResponseBodyString) {
         return new BusinessVerifyFilter(
                 checkManager,
                 routeLocator,
                 properties,
-                checkExceptionToResponseObject);
+                checkExceptionToResponseBodyString);
     }
 
     @Bean
@@ -34,6 +35,12 @@ public class CheckAutoConfiguration {
                                         CheckPropertiesFetcher fetcher,
                                         List<BusinessChecker> checkers) {
         return new CheckManager(checkProperties, fetcher, checkers);
+    }
+
+    @Bean
+    @ConditionalOnBean(CheckExceptionToResponseBodyString.class)
+    public CheckExToSimpleBodyString checkExToSimpleBodyString() {
+        return new CheckExToSimpleBodyString();
     }
 
 }
